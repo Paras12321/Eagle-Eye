@@ -232,17 +232,28 @@ Inspection checklists can be provided as **CSV** or **Excel (`.xlsx`)** files. T
 |---|---|---|---|
 | `check_id` | Text | Unique identifier for the inspection rule | `CHK-001` |
 | `check_name` | Text | Descriptive name of the item or component | `Main Circuit Breaker (MCB)` |
-| `expected_value` | Text | Required specification, presence, or label | `Present` |
+| `expected_value` | Text | Required specification, presence, or label | `Present & ON` |
 
-Optional columns such as `component_type` and `notes` are supported and displayed when present. A starter template is provided at [`sample_data/checklist_template.csv`](sample_data/checklist_template.csv).
+### Optional / Seeded Demo Columns
+For demonstration and offline verification, optional columns are supported:
+- `demo_found_value`: Observed value or defect label (e.g., `Disconnected / Open Lug`).
+- `demo_status`: Verification outcome (`PASS`, `FAIL`, or `Needs Manual Check`).
+- `evidence_box`: Bounding box coordinates `"x1,y1,x2,y2"` (e.g., `"160,140,360,320"`).
+- `component_type`: Component category (e.g., `Circuit Breaker`, `Wiring`).
+- `notes`: Specific inspection criteria or defect notes.
+
+A pre-configured demo checklist is available at [`sample_data/sample_demo_checklist.csv`](sample_data/sample_demo_checklist.csv) (and `.xlsx`), with a blank template at [`sample_data/checklist_template.csv`](sample_data/checklist_template.csv).
 
 ---
 
 ## 17. Sample Demonstration Instructions
 1. Activate your virtual environment and launch `streamlit run app.py`.
-2. Inspect the **System Status** panel to verify that the environment and sample checklist template are detected.
-3. Review the planned 8-step workflow on the homepage.
-4. Run `pytest -q` to confirm all 11 baseline unit tests pass.
+2. Click **🚀 Load Sample Demo Data** in the left sidebar to pre-populate both `sample_cabinet.png` and `sample_demo_checklist.csv`.
+3. Review the uploaded photo thumbnail and checklist preview table.
+4. Click **🔍 Run Quality Inspection** to view the findings, discrepancy table, and annotated photograph with numbered issue markers.
+5. In the **Export Inspection Report** section, download the CSV or Markdown report.
+6. In the **Closed-Loop Re-Inspection** section, click **🔧 Simulate Fix** to verify the defect resolution transition.
+7. Run `pytest -q` to confirm the unit test suite passes.
 
 ---
 
@@ -258,9 +269,12 @@ Detailed team protocols and shared interface guidelines are documented in [`docs
 
 ## 19. Current Implementation Status
 
-> [!IMPORTANT]
-> **Foundation & Architecture Initialized.**  
-> This task initializes the complete project structure, data contracts, environment configuration, starter tests, and documentation. The core automated computer vision detection rules and interactive checklist evaluation features will be implemented module-by-module in subsequent development tasks.
+> [!NOTE]
+> **Input Processing & End-to-End Demo Operational.**  
+> - File intake for JPG/PNG images and CSV/Excel checklists is active with comprehensive error validation.
+> - Pre-loaded sample demo option is available for immediate judge evaluation without needing external files.
+> - Smallest end-to-end demo flow is complete: Upload -> Inspect -> Visualize Issue Markers -> Export Reports -> Simulated Re-Inspection.
+
 
 ---
 
