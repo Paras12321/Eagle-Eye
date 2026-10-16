@@ -123,3 +123,64 @@ def draw_issue_marker(
     )
 
     return annotated
+
+
+def draw_demo_evidence_label(
+    image: np.ndarray,
+    text: str = "SAMPLE / DEMO EVIDENCE",
+    position: str = "bottom",
+) -> np.ndarray:
+    """Stamp a semi-transparent demo-evidence watermark on an image.
+
+    This makes it visually clear to judges that the markers shown are
+    seeded demonstration data, not automatic detection results.
+
+    Parameters
+    ----------
+    image : np.ndarray
+        Source image (BGR).
+    text : str
+        Watermark text.
+    position : str
+        ``"bottom"`` (default) or ``"top"``.
+
+    Returns
+    -------
+    np.ndarray
+        Image with the watermark rendered.
+    """
+    annotated = image.copy()
+    h, w = annotated.shape[:2]
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    font_scale = 0.55
+    font_thickness = 1
+    (text_w, text_h), baseline = cv2.getTextSize(text, font, font_scale, font_thickness)
+
+    pad = 6
+    if position == "top":
+        banner_y1 = 0
+    else:
+        banner_y1 = h - text_h - 2 * pad
+
+    banner_y2 = banner_y1 + text_h + 2 * pad
+
+    # Semi-transparent dark banner
+    overlay = annotated.copy()
+    cv2.rectangle(overlay, (0, banner_y1), (w, banner_y2), (40, 40, 40), cv2.FILLED)
+    cv2.addWeighted(overlay, 0.6, annotated, 0.4, 0, annotated)
+
+    text_x = (w - text_w) // 2
+    text_y = banner_y1 + pad + text_h
+    cv2.putText(
+        annotated,
+        text,
+        (text_x, text_y),
+        font,
+        font_scale,
+        (80, 220, 255),  # Amber/gold for visibility
+        font_thickness,
+        lineType=cv2.LINE_AA,
+    )
+
+    return annotated

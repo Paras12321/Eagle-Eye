@@ -37,6 +37,11 @@ from src.eagle_eye.input_processing.file_loader import (
 from src.eagle_eye.vision.annotation import (
     draw_bounding_box,
     draw_issue_marker,
+    draw_demo_evidence_label,
+)
+from src.eagle_eye.vision.image_processor import (
+    save_annotated_image,
+    save_evidence_crops,
 )
 from src.eagle_eye.inspection.result_models import (
     CheckStatus,
@@ -323,6 +328,22 @@ if st.session_state["inspection_summary"] is not None:
                     )
                     markers_info.append((item.marker_id, item.check_id, item.check_name, item.status.value, item.notes))
 
+        # Stamp demo evidence watermark so judges know markers are seeded
+        annotated_img = draw_demo_evidence_label(annotated_img)
+
+        # Save annotated image to outputs/
+        annotated_save_path = save_annotated_image(
+            annotated_img,
+            BASE_DIR / "outputs" / "annotated_cabinet.png",
+        )
+
+        # Save evidence crop snippets for FAIL items
+        crop_paths = save_evidence_crops(
+            st.session_state["cabinet_image"],
+            summary.items,
+            BASE_DIR / "outputs" / "evidence_crops",
+        )
+
         annotated_rgb = cv2.cvtColor(annotated_img, cv2.COLOR_BGR2RGB)
         st.image(
             annotated_rgb,
@@ -341,6 +362,15 @@ if st.session_state["inspection_summary"] is not None:
                 )
         else:
             st.info("No localized visual bounding boxes specified for current items.")
+
+        # Show evidence crops for FAIL items
+        if crop_paths:
+            st.markdown("#### 📸 FAIL Evidence Crops")
+            for cid, cpath in crop_paths.items():
+                crop_img = cv2.imread(cpath)
+                if crop_img is not None:
+                    crop_rgb = cv2.cvtColor(crop_img, cv2.COLOR_BGR2RGB)
+                    st.image(crop_rgb, caption=f"Evidence crop: {cid} (sample/demo)", width=240)
 
     st.markdown("---")
 

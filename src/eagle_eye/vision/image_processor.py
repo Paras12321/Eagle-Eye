@@ -3,7 +3,9 @@
 Owned by: MEMBER 2 (Computer Vision)
 """
 
-from typing import Tuple, Union
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Union
+
 import cv2
 import numpy as np
 
@@ -83,3 +85,137 @@ def extract_crop(image: np.ndarray, bbox: Tuple[int, int, int, int]) -> np.ndarr
     y1 = max(0, min(y1, h))
     y2 = max(0, min(y2, h))
     return image[y1:y2, x1:x2].copy()
+
+
+# ---------------------------------------------------------------------------
+#  New functions added by Member 2 for the end-to-end demo
+# ---------------------------------------------------------------------------
+
+
+def save_annotated_image(
+    image: np.ndarray,
+    output_path: Union[str, Path],
+) -> str:
+    """Save an annotated image to disk.
+
+    Parameters
+    ----------
+    image : np.ndarray
+        The annotated OpenCV BGR image to save.
+    output_path : str or Path
+        Destination file path (e.g. ``outputs/annotated_cabinet.png``).
+
+    Returns
+    -------
+    str
+        The absolute path of the saved file.
+
+    Raises
+    ------
+    ValueError
+        If the image is None or has zero size.
+    """
+    if image is None or image.size == 0:
+        raise ValueError("Cannot save an empty or None image.")
+
+    out = Path(output_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    cv2.imwrite(str(out), image)
+    return str(out.resolve())
+
+
+def save_evidence_crops(
+    image: np.ndarray,
+    items: list,
+    output_dir: Union[str, Path],
+) -> Dict[str, str]:
+    """Extract and save individual evidence crop snippets for FAIL items.
+
+    For each item that has an ``evidence_bbox`` and whose status name
+    contains ``FAIL``, this function crops the region from *image* and
+    writes it as a numbered PNG file inside *output_dir*.
+
+    Parameters
+    ----------
+    image : np.ndarray
+        The **original** (un-annotated) cabinet image in OpenCV BGR format.
+    items : list
+        List of ``InspectionItemResult`` objects (or any object with
+        ``check_id``, ``status``, and ``evidence_bbox`` attributes).
+    output_dir : str or Path
+        Directory where crop files will be saved.
+
+    Returns
+    -------
+    Dict[str, str]
+        Mapping of ``check_id`` → saved crop file path for each FAIL item
+        that had a valid bounding box.
+    """
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    saved: Dict[str, str] = {}
+
+    for item in items:
+        status_val = item.status.value if hasattr(item.status, "value") else str(item.status)
+        if "FAIL" not in status_val.upper():
+            continue
+        if item.evidence_bbox is None:
+            continue
+
+        crop = extract_crop(image, item.evidence_bbox)
+        if crop.size == 0:
+            continue
+
+        fname = f"crop_{item.check_id}.png"
+        crop_path = out / fname
+        cv2.imwrite(str(crop_path), crop)
+        saved[item.check_id] = str(crop_path.resolve())
+
+    return saved
+
+
+def try_ocr_region(
+    image: np.ndarray,
+    bbox: Optional[Tuple[int, int, int, int]] = None,
+) -> Optional[str]:
+    """Attempt lightweight OCR on a region of the image.
+
+    Uses ``pytesseract`` if installed.  If the library is not available or
+    OCR produces no readable text the function returns ``None`` so the
+    caller can fall back to "Needs Manual Check".
+
+    Parameters
+    ----------
+    image : np.ndarray
+        Source image in OpenCV BGR format.
+    bbox : Optional[Tuple[int, int, int, int]]
+        If provided, OCR is run only on the cropped region ``(x1, y1, x2, y2)``.
+        If ``None``, OCR is run on the full image.
+
+    Returns
+    -------
+    Optional[str]
+        Recognized text stripped of surrounding whitespace, or ``None``
+        when OCR is unavailable or produces no output.
+    """
+    try:
+        import pytesseract  # type: ignore
+    except ImportError:
+        # pytesseract is not installed — this is fine for the demo.
+        return None
+
+    region = image
+    if bbox is not None:
+        region = extract_crop(image, bbox)
+        if region.size == 0:
+            return None
+
+    # Convert to grayscale for better OCR accuracy
+    gray = cv2.cvtColor(region, cv2.COLOR_BGR2GRAY)
+
+    try:
+        text = pytesseract.image_to_string(gray, config="--psm 7").strip()
+    except Exception:
+        return None
+
+    return text if text else None
