@@ -1,0 +1,6 @@
+check_id,check_name,expected_value,component_type,notes
+CHK-001,Main Circuit Breaker (MCB),Present,Circuit Breaker,Verify Q1 3-phase MCB is installed on DIN rail
+CHK-002,Terminal Block Labeling,TB-01 to TB-12,Terminal Block,Check sequential numerical markers on terminal rail
+CHK-003,Safety Ground Conductor,Green-Yellow PE,Wiring,Ensure protective earth bonding to cabinet frame
+CHK-004,PLC Status Indicator,Power LED Green,Controller,Verify 24VDC primary controller power indication
+CHK-005,Emergency Stop Pushbutton,NC Contact Connected,Switch,Check external enclosure emergency stop button

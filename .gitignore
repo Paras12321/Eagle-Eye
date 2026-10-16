@@ -218,3 +218,37 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ====================================================
+# EAGLE EYE - Specific Project Exclusions & Privacy
+# ====================================================
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Inspection Outputs & Reports
+outputs/*
+!outputs/.gitkeep
+
+# Confidential & Proprietary Hackathon Data
+private_data/
+confidential/
+drawings/
+restricted/
+*.dwg
+*.dxf
+*.pdf
+
+# Raw cabinet photographs outside sample_data
+*.jpg
+*.jpeg
+*.png
+*.bmp
+!sample_data/**
+
+# Proprietary spreadsheets outside sample_data
+*.xlsx
+*.xls
+!sample_data/**
