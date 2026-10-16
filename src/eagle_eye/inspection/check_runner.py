@@ -1,6 +1,6 @@
 """Core inspection execution runner.
 
-Owned by: MEMBER 3 (Inspection Logic)
+Owned by: MEMBER 3 (Inspection Logic) - Coordinated with MEMBER 1
 """
 
 from typing import Optional
@@ -16,10 +16,6 @@ def run_inspection(
 ) -> InspectionSummary:
     """Execute quality inspection checks against the checklist items.
 
-    NOTE: In this initialization phase, this runner serves as a clean starter
-    interface. In subsequent development tasks, Member 3 and Member 2 will connect
-    concrete rule-based verifications and visual detection routines here.
-
     Parameters
     ----------
     image : Optional[np.ndarray]
@@ -31,27 +27,32 @@ def run_inspection(
     Returns
     -------
     InspectionSummary
-        Initial inspection summary populated with structured results.
+        Inspection summary populated with structured results.
     """
-    results = []
+    has_demo_columns = any(col in checklist_df.columns for col in ["demo_status", "demo_found_value", "evidence_box"])
 
-    for _, row in checklist_df.iterrows():
-        check_id = str(row.get("check_id", "UNKNOWN"))
-        check_name = str(row.get("check_name", "Unnamed Check"))
-        expected = str(row.get("expected_value", "N/A"))
-        notes = str(row.get("notes", ""))
+    if has_demo_columns:
+        from src.eagle_eye.input_processing.file_loader import checklist_to_inspection_results
+        results = checklist_to_inspection_results(checklist_df)
+    else:
+        results = []
+        for _, row in checklist_df.iterrows():
+            check_id = str(row.get("check_id", "UNKNOWN"))
+            check_name = str(row.get("check_name", "Unnamed Check"))
+            expected = str(row.get("expected_value", "N/A"))
+            notes = str(row.get("notes", ""))
 
-        # Starter stub behavior: mark as Needs Manual Check pending computer vision rule implementation
-        item = InspectionItemResult(
-            check_id=check_id,
-            check_name=check_name,
-            expected_value=expected,
-            found_value="Pending Verification",
-            status=CheckStatus.MANUAL_CHECK,
-            notes=f"Initial inspection baseline. {notes}".strip(),
-            evidence_bbox=None,
-            marker_id=None,
-        )
-        results.append(item)
+            # Baseline behavior: mark as Needs Manual Check pending concrete CV detection
+            item = InspectionItemResult(
+                check_id=check_id,
+                check_name=check_name,
+                expected_value=expected,
+                found_value="Pending Verification",
+                status=CheckStatus.MANUAL_CHECK,
+                notes=f"Initial inspection baseline. {notes}".strip(),
+                evidence_bbox=None,
+                marker_id=None,
+            )
+            results.append(item)
 
     return InspectionSummary.from_items(results)

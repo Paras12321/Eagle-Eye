@@ -16,10 +16,25 @@ APP_VERSION = "0.1.0-alpha (Foundation)"
 
 # Supported file formats
 SUPPORTED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
-SUPPORTED_CHECKLIST_EXTENSIONS = {".csv", ".xlsx"}
+SUPPORTED_CHECKLIST_EXTENSIONS = {".csv", ".xlsx", ".xls"}
 
-# Default files
+# Default sample files
 DEFAULT_CHECKLIST_PATH = SAMPLE_DATA_DIR / "checklist_template.csv"
+DEFAULT_SAMPLE_IMAGE_PATH = SAMPLE_DATA_DIR / "sample_cabinet.png"
+DEFAULT_DEMO_CHECKLIST_PATH = SAMPLE_DATA_DIR / "sample_demo_checklist.csv"
 
 # Minimum required columns in the checklist
 REQUIRED_CHECKLIST_COLUMNS = ["check_id", "check_name", "expected_value"]
+
+# Supported optional columns for demo / inspection metadata
+OPTIONAL_CHECKLIST_COLUMNS = [
+    "demo_found_value",
+    "demo_status",
+    "evidence_box",
+    "component_type",
+    "notes",
+]
+
+# File size limits (MB)
+MAX_IMAGE_FILE_SIZE_MB = 25
+

@@ -1,0 +1,6 @@
+check_id,check_name,expected_value,demo_found_value,demo_status,evidence_box,component_type,notes
+CHK-001,Main Circuit Breaker (MCB),Present & ON,Present & ON (Q1 63A),PASS,"160,140,360,320",Circuit Breaker,Verified 3-phase MCB installed on top DIN rail in closed position [Sample Demo]
+CHK-002,Safety Ground PE Bonding,Connected (Green-Yellow PE),Disconnected / Open Lug,FAIL,"620,440,800,540",Wiring,Earth bonding lug not secured to chassis grounding rail [Sample Demo]
+CHK-003,Terminal Strip TB-01..12,Sequential Labeling (1-12),Labeling obscured on TB-07..09,Needs Manual Check,"160,420,520,520",Terminal Block,Surface glare prevents OCR confidence on terminals 7 through 9 [Sample Demo]
+CHK-004,24VDC Primary Power Supply,Power LED Green (24VDC OK),Power LED Green,PASS,"420,140,580,320",Power Supply,PSU indicator confirms stable 24V bus voltage [Sample Demo]
+CHK-005,PLC Controller Status,Status LED Normal,Status LED Normal (RUN),PASS,"640,140,840,320",Controller,Controller module powered and in active RUN state [Sample Demo]
